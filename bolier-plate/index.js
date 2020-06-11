@@ -39,13 +39,7 @@ app.post('/register', (req, res) => {
 
 app.post('/login', (req, res) => {
    // 요청된 데이터 베이스있는 에미일인지 확인 step1
-   console.log('ping')
-   console.log(User.findOne)
    User.findOne({ email: req.body.email }, (err, user) => {
-      console.log('%%%%%%%%%%%%%%%%%%%%')
-      console.log(err);
-      console.log('--------------------')
-      console.log(user);
       if(!user) {
          return res.json({
             loginSuccess: false,
@@ -53,11 +47,10 @@ app.post('/login', (req, res) => {
          })
       }
 
-
       user.comparePassword(req.body.password, (err, isMatch) => {
-         if(!isMatch) {
+         if(!isMatch) 
             return res.json({ loginSuccess: false, message: '비밀번호가 틀렸습니다.'})
-         }
+         
          // 둘다 맞다면 토큰을 생성
          user.generateToken((err, user) => {
             if(err) return res.status(400).send(err)
@@ -69,9 +62,6 @@ app.post('/login', (req, res) => {
          })
       })
    })
-
-   console.log('##################')
-
    // 요청된 이메일이 데이터 베이스에 있다면 비밀번호가 맞는 비밀번호인지 확인 step2
    // const user = new User(req.body);
    //console.log(user)
