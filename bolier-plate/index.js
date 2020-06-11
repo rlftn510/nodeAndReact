@@ -2,9 +2,10 @@ const express = require('express')
 const app = express()
 const port = 5000
 const bodyParser = require('body-parser')
-const { User } = require('./models/User')
 const config = require('./config/key')
 const cookieParser = require('cookie-parser')
+const { auth } = require('./middleware/auth')
+const { User } = require('./models/User')
 // application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -23,7 +24,7 @@ mongoose.connect(config.mongoURI, {
 
 app.get('/', (req, res) => res.send('Hello World!!!!! GIlsusss'))
 
-app.post('/register', (req, res) => {
+app.post('/api/users/register', (req, res) => {
    // 회원 가입 할때 필요한 정보들을 client에서 가져오면
    // 그것들을 데이터 베이스에 넣어준다
 
@@ -37,7 +38,7 @@ app.post('/register', (req, res) => {
    })
 })
 
-app.post('/login', (req, res) => {
+app.post('/api/users/login', (req, res) => {
    // 요청된 데이터 베이스있는 에미일인지 확인 step1
    User.findOne({ email: req.body.email }, (err, user) => {
       if(!user) {
@@ -69,6 +70,20 @@ app.post('/login', (req, res) => {
    */
 })
 
+                            // middleware
+app.get('/api/users/auth', auth, (req, res) => {
+    // 여기 까지 미들웨어를 통과해 왔다는 얘기는 auth 가 ture 라는 말 
+    res.status(200).json({
+        _id: req.user._id,
+        isAdmin: req.user.role === 0 ? false : true,
+        isAuth: true,
+        email: req.user.email,
+        name: req.user.name,
+        lastname: req.user.lastname,
+        role: req.user.role,
+        image: req.user.image
+    })
+})
 
 app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`));
 
